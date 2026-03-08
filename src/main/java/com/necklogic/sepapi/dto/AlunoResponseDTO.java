@@ -8,8 +8,10 @@ public record AlunoResponseDTO(
 
         UUID id,
         String nome,
+        String materia,
         boolean ativo,
-        TipoCobranca tipoCobranca
+        TipoCobranca tipoCobranca,
+        Integer saldoCreditos
 
 ) {
 }

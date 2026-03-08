@@ -58,4 +58,9 @@ public class AlunoController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/metricas")
+    public ResponseEntity<com.necklogic.sepapi.dto.AlunoMetricasDTO> getMetrics(@AuthenticationPrincipal Professor professor) {
+        return ResponseEntity.ok(alunoService.obterMetricas(professor.getId()));
+    }
+
 }

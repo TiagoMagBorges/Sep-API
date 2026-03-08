@@ -1,9 +1,11 @@
 package com.necklogic.sepapi.service;
 
+import com.necklogic.sepapi.dto.AlunoMetricasDTO;
 import com.necklogic.sepapi.dto.AlunoRequestDTO;
 import com.necklogic.sepapi.dto.AlunoResponseDTO;
 import com.necklogic.sepapi.model.Aluno;
 import com.necklogic.sepapi.model.Professor;
+import com.necklogic.sepapi.model.enums.TipoCobranca;
 import com.necklogic.sepapi.repository.AlunoRepository;
 import com.necklogic.sepapi.strategy.CobrancaStrategy;
 import com.necklogic.sepapi.strategy.MensalidadeStrategy;
@@ -42,8 +44,10 @@ public class AlunoService {
     public AlunoResponseDTO criar(AlunoRequestDTO dto, Professor professor){
         Aluno aluno = Aluno.builder()
                 .nome(dto.nome())
+                .materia(dto.materia())
                 .ativo(dto.ativo())
                 .tipoCobranca(dto.tipoCobranca())
+                .saldoCreditos(dto.saldoCreditos() != null ? dto.saldoCreditos() : 0)
                 .professor(professor)
                 .build();
 
@@ -57,8 +61,10 @@ public class AlunoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         aluno.setNome(dto.nome());
+        aluno.setMateria(dto.materia());
         aluno.setAtivo(dto.ativo());
         aluno.setTipoCobranca(dto.tipoCobranca());
+        aluno.setSaldoCreditos(dto.saldoCreditos() != null ? dto.saldoCreditos() : 0);
 
         aplicarStrategy(aluno);
 
@@ -70,6 +76,14 @@ public class AlunoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         alunoRepository.delete(aluno);
+    }
+
+    public AlunoMetricasDTO obterMetricas(UUID professorId) {
+        long ativos = alunoRepository.countByProfessorIdAndAtivoTrue(professorId);
+        long creditosBaixos = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosLessThanEqual(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
+        long emDia = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosGreaterThan(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
+
+        return new AlunoMetricasDTO(ativos, creditosBaixos, emDia);
     }
 
     private void aplicarStrategy(Aluno aluno){
@@ -84,7 +98,8 @@ public class AlunoService {
     private AlunoResponseDTO mapToDTO(Aluno aluno){
 
         return new AlunoResponseDTO(aluno.getId(), aluno.getNome(),
-                                    aluno.isAtivo(), aluno.getTipoCobranca());
+                                    aluno.getMateria(), aluno.isAtivo(),
+                                    aluno.getTipoCobranca(), aluno.getSaldoCreditos());
     }
 
 }

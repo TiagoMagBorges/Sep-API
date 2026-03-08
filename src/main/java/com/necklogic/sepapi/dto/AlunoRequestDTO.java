@@ -7,8 +7,10 @@ import jakarta.validation.constraints.NotNull;
 public record AlunoRequestDTO(
 
         @NotBlank String nome,
+        @NotBlank String materia,
         boolean ativo,
-        @NotNull TipoCobranca tipoCobranca
+        @NotNull TipoCobranca tipoCobranca,
+        Integer saldoCreditos
 
         ) {
 }
