@@ -1,5 +1,6 @@
 package com.necklogic.sepapi.model;
 
+import com.necklogic.sepapi.model.enums.TipoCobranca;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +24,10 @@ public class Aluno {
 
     @Column(nullable = false)
     private boolean ativo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoCobranca tipoCobranca;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)

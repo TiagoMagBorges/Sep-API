@@ -1,0 +1,15 @@
+package com.necklogic.sepapi.strategy;
+
+import com.necklogic.sepapi.model.Aluno;
+import org.springframework.stereotype.Component;
+
+@Component
+
+public class PacoteCreditosStrategy implements CobrancaStrategy{
+
+    @Override
+    public void processar(Aluno aluno){
+
+    }
+
+}

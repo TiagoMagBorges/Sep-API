@@ -6,6 +6,7 @@ import com.necklogic.sepapi.model.Financa;
 import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.model.enums.StatusAula;
 import com.necklogic.sepapi.model.enums.StatusPagamento;
+import com.necklogic.sepapi.model.enums.TipoCobranca;
 import com.necklogic.sepapi.repository.AlunoRepository;
 import com.necklogic.sepapi.repository.AulaRepository;
 import com.necklogic.sepapi.repository.FinancaRepository;
@@ -44,10 +45,10 @@ public class DataSeeder implements CommandLineRunner {
 
         professorRepository.save(professor);
 
-        Aluno aluno1 = Aluno.builder().nome("Carlos Silva").ativo(true).professor(professor).build();
-        Aluno aluno2 = Aluno.builder().nome("Ana Beatriz").ativo(true).professor(professor).build();
-        Aluno aluno3 = Aluno.builder().nome("Marcos Paulo").ativo(true).professor(professor).build();
-        Aluno aluno4 = Aluno.builder().nome("Julia Santos").ativo(false).professor(professor).build();
+        Aluno aluno1 = Aluno.builder().nome("Carlos Silva").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).professor(professor).build();
+        Aluno aluno2 = Aluno.builder().nome("Ana Beatriz").ativo(true).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).professor(professor).build();
+        Aluno aluno3 = Aluno.builder().nome("Marcos Paulo").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).professor(professor).build();
+        Aluno aluno4 = Aluno.builder().nome("Julia Santos").ativo(false).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).professor(professor).build();
 
         alunoRepository.saveAll(List.of(aluno1, aluno2, aluno3, aluno4));
 
