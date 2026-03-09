@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthRequestDTO data) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken(((Professor) auth.getPrincipal()).getId());
@@ -43,12 +43,12 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        String encryptedPassword = passwordEncoder.encode(data.senha());
+        String encryptedPassword = passwordEncoder.encode(data.password());
 
         Professor newProfessor = Professor.builder()
-                .nome(data.nome())
+                .name(data.name())
                 .email(data.email())
-                .senha(encryptedPassword)
+                .password(encryptedPassword)
                 .build();
 
         this.professorRepository.save(newProfessor);

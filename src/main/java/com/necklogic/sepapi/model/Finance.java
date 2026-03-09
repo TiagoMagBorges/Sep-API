@@ -1,35 +1,39 @@
 package com.necklogic.sepapi.model;
 
-import com.necklogic.sepapi.model.enums.StatusAula;
+import com.necklogic.sepapi.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "aulas")
+@Table(name = "finances")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Aula {
+public class Finance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
-    private LocalDateTime dataHora;
+    private BigDecimal amount;
+
+    @Column(nullable = false)
+    private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusAula status;
+    private PaymentStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)

@@ -1,15 +1,15 @@
 package com.necklogic.sepapi.config;
 
-import com.necklogic.sepapi.model.Aluno;
-import com.necklogic.sepapi.model.Aula;
-import com.necklogic.sepapi.model.Financa;
+import com.necklogic.sepapi.model.Student;
+import com.necklogic.sepapi.model.Lesson;
+import com.necklogic.sepapi.model.Finance;
 import com.necklogic.sepapi.model.Professor;
-import com.necklogic.sepapi.model.enums.StatusAula;
-import com.necklogic.sepapi.model.enums.StatusPagamento;
-import com.necklogic.sepapi.model.enums.TipoCobranca;
-import com.necklogic.sepapi.repository.AlunoRepository;
-import com.necklogic.sepapi.repository.AulaRepository;
-import com.necklogic.sepapi.repository.FinancaRepository;
+import com.necklogic.sepapi.model.enums.LessonStatus;
+import com.necklogic.sepapi.model.enums.PaymentStatus;
+import com.necklogic.sepapi.model.enums.BillingType;
+import com.necklogic.sepapi.repository.StudentRepository;
+import com.necklogic.sepapi.repository.LessonRepository;
+import com.necklogic.sepapi.repository.FinanceRepository;
 import com.necklogic.sepapi.repository.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -26,9 +26,9 @@ import java.util.List;
 public class DataSeeder implements CommandLineRunner {
 
     private final ProfessorRepository professorRepository;
-    private final AlunoRepository alunoRepository;
-    private final AulaRepository aulaRepository;
-    private final FinancaRepository financaRepository;
+    private final StudentRepository studentRepository;
+    private final LessonRepository lessonRepository;
+    private final FinanceRepository financeRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -38,34 +38,34 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         Professor professor = Professor.builder()
-                .nome("Tiago Borges")
+                .name("Tiago Borges")
                 .email("tiagomagborges@gmail.com")
-                .senha(passwordEncoder.encode("senha_segura_123"))
+                .password(passwordEncoder.encode("senha_segura_123"))
                 .build();
 
         professorRepository.save(professor);
 
-        Aluno aluno1 = Aluno.builder().nome("Carlos Silva").materia("Matemática").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).build();
-        Aluno aluno2 = Aluno.builder().nome("Ana Beatriz").materia("Inglês").ativo(true).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(4).professor(professor).build();
-        Aluno aluno3 = Aluno.builder().nome("Marcos Paulo").materia("Física").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).build();
-        Aluno aluno4 = Aluno.builder().nome("Julia Santos").materia("Química").ativo(false).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(2).professor(professor).build();
+        Student student1 = Student.builder().name("Carlos Silva").subject("Matemática").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).build();
+        Student student2 = Student.builder().name("Ana Beatriz").subject("Inglês").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(4).professor(professor).build();
+        Student student3 = Student.builder().name("Marcos Paulo").subject("Física").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).build();
+        Student student4 = Student.builder().name("Julia Santos").subject("Química").active(false).billingType(BillingType.CREDIT_PACKAGE).creditBalance(2).professor(professor).build();
 
-        alunoRepository.saveAll(List.of(aluno1, aluno2, aluno3, aluno4));
+        studentRepository.saveAll(List.of(student1, student2, student3, student4));
 
-        LocalDateTime hoje = LocalDateTime.now();
+        LocalDateTime today = LocalDateTime.now();
 
-        Aula aula1 = Aula.builder().dataHora(hoje.plusDays(1)).status(StatusAula.AGENDADA).aluno(aluno1).professor(professor).build();
-        Aula aula2 = Aula.builder().dataHora(hoje.plusDays(2)).status(StatusAula.AGENDADA).aluno(aluno2).professor(professor).build();
-        Aula aula3 = Aula.builder().dataHora(hoje.minusDays(1)).status(StatusAula.REALIZADA).aluno(aluno3).professor(professor).build();
+        Lesson lesson1 = Lesson.builder().dateTime(today.plusDays(1)).status(LessonStatus.SCHEDULED).student(student1).professor(professor).build();
+        Lesson lesson2 = Lesson.builder().dateTime(today.plusDays(2)).status(LessonStatus.SCHEDULED).student(student2).professor(professor).build();
+        Lesson lesson3 = Lesson.builder().dateTime(today.minusDays(1)).status(LessonStatus.COMPLETED).student(student3).professor(professor).build();
 
-        aulaRepository.saveAll(List.of(aula1, aula2, aula3));
+        lessonRepository.saveAll(List.of(lesson1, lesson2, lesson3));
 
-        LocalDate vencimentoHoje = LocalDate.now();
+        LocalDate dueToday = LocalDate.now();
 
-        Financa financa1 = Financa.builder().valor(new BigDecimal("150.00")).dataVencimento(vencimentoHoje.plusDays(5)).status(StatusPagamento.PENDENTE).aluno(aluno1).professor(professor).build();
-        Financa financa2 = Financa.builder().valor(new BigDecimal("200.00")).dataVencimento(vencimentoHoje.minusDays(2)).status(StatusPagamento.ATRASADO).aluno(aluno2).professor(professor).build();
-        Financa financa3 = Financa.builder().valor(new BigDecimal("180.00")).dataVencimento(vencimentoHoje).status(StatusPagamento.PAGO).aluno(aluno3).professor(professor).build();
+        Finance finance1 = Finance.builder().amount(new BigDecimal("150.00")).dueDate(dueToday.plusDays(5)).status(PaymentStatus.PENDING).student(student1).professor(professor).build();
+        Finance finance2 = Finance.builder().amount(new BigDecimal("200.00")).dueDate(dueToday.minusDays(2)).status(PaymentStatus.OVERDUE).student(student2).professor(professor).build();
+        Finance finance3 = Finance.builder().amount(new BigDecimal("180.00")).dueDate(dueToday).status(PaymentStatus.PAID).student(student3).professor(professor).build();
 
-        financaRepository.saveAll(List.of(financa1, financa2, financa3));
+        financeRepository.saveAll(List.of(finance1, finance2, finance3));
     }
 }

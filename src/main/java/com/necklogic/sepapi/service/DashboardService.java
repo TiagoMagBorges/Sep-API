@@ -1,11 +1,11 @@
 package com.necklogic.sepapi.service;
 
 import com.necklogic.sepapi.dto.DashboardSummaryDTO;
-import com.necklogic.sepapi.model.enums.StatusAula;
-import com.necklogic.sepapi.model.enums.StatusPagamento;
-import com.necklogic.sepapi.repository.AlunoRepository;
-import com.necklogic.sepapi.repository.AulaRepository;
-import com.necklogic.sepapi.repository.FinancaRepository;
+import com.necklogic.sepapi.model.enums.LessonStatus;
+import com.necklogic.sepapi.model.enums.PaymentStatus;
+import com.necklogic.sepapi.repository.StudentRepository;
+import com.necklogic.sepapi.repository.LessonRepository;
+import com.necklogic.sepapi.repository.FinanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +21,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final AlunoRepository alunoRepository;
-    private final AulaRepository aulaRepository;
-    private final FinancaRepository financaRepository;
+    private final StudentRepository studentRepository;
+    private final LessonRepository lessonRepository;
+    private final FinanceRepository financeRepository;
 
     public DashboardSummaryDTO getSummary(UUID professorId) {
-        long totalAlunos = alunoRepository.countByProfessorIdAndAtivoTrue(professorId);
+        long totalStudents = studentRepository.countByProfessorIdAndActiveTrue(professorId);
 
         LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);
-        long aulasNaSemana = aulaRepository.countByProfessorIdAndDataHoraBetweenAndStatus(professorId, startOfWeek, endOfWeek, StatusAula.AGENDADA);
+        long lessonsInWeek = lessonRepository.countByProfessorIdAndDateTimeBetweenAndStatus(professorId, startOfWeek, endOfWeek, LessonStatus.SCHEDULED);
 
-        BigDecimal pagamentosPendentes = financaRepository.sumValorByProfessorIdAndStatus(professorId, StatusPagamento.PENDENTE)
+        BigDecimal pendingPayments = financeRepository.sumAmountByProfessorIdAndStatus(professorId, PaymentStatus.PENDING)
                 .orElse(BigDecimal.ZERO);
 
-        return new DashboardSummaryDTO(totalAlunos, aulasNaSemana, pagamentosPendentes);
+        return new DashboardSummaryDTO(totalStudents, lessonsInWeek, pendingPayments);
     }
 }

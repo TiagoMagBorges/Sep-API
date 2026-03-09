@@ -1,40 +1,35 @@
 package com.necklogic.sepapi.model;
 
-import com.necklogic.sepapi.model.enums.TipoCobranca;
+import com.necklogic.sepapi.model.enums.LessonStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "alunos")
+@Table(name = "lessons")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Aluno {
+public class Lesson {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
-    private String nome;
-
-    @Column(nullable = false)
-    private String materia;
-
-    @Column(nullable = false)
-    private boolean ativo;
+    private LocalDateTime dateTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoCobranca tipoCobranca;
+    private LessonStatus status;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer saldoCreditos = 0;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
