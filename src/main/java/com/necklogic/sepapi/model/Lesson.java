@@ -23,6 +23,9 @@ public class Lesson {
     @Column(nullable = false)
     private LocalDateTime dateTime;
 
+    @Column(nullable = false)
+    private LocalDateTime endTime;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LessonStatus status;
