@@ -54,9 +54,9 @@ public class DataSeeder implements CommandLineRunner {
 
         LocalDateTime today = LocalDateTime.now();
 
-        Lesson lesson1 = Lesson.builder().dateTime(today.plusDays(1)).status(LessonStatus.SCHEDULED).student(student1).professor(professor).build();
-        Lesson lesson2 = Lesson.builder().dateTime(today.plusDays(2)).status(LessonStatus.SCHEDULED).student(student2).professor(professor).build();
-        Lesson lesson3 = Lesson.builder().dateTime(today.minusDays(1)).status(LessonStatus.COMPLETED).student(student3).professor(professor).build();
+        Lesson lesson1 = Lesson.builder().dateTime(today.plusDays(1)).endTime(today.plusDays(1).plusHours(1)).status(LessonStatus.SCHEDULED).student(student1).professor(professor).build();
+        Lesson lesson2 = Lesson.builder().dateTime(today.plusDays(2)).endTime(today.plusDays(2).plusHours(1)).status(LessonStatus.SCHEDULED).student(student2).professor(professor).build();
+        Lesson lesson3 = Lesson.builder().dateTime(today.minusDays(1)).endTime(today.minusDays(1).plusHours(1)).status(LessonStatus.COMPLETED).student(student3).professor(professor).build();
 
         lessonRepository.saveAll(List.of(lesson1, lesson2, lesson3));
 
