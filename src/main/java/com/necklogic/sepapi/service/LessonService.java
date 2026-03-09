@@ -43,7 +43,7 @@ public class LessonService {
 
     @Transactional
     public LessonResponseDTO create(LessonRequestDTO dto, Professor professor) {
-        if (dto.endTime().isBefore(dto.dateTime()) || dto.endTime().isEqual(dto.dateTime())) {
+        if (!dto.endTime().isAfter(dto.dateTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End time must be after start time");
         }
 
@@ -53,6 +53,8 @@ public class LessonService {
 
         Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professor.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+
+        processCreditAdjustment(student, null, dto.status());
 
         Lesson lesson = Lesson.builder()
                 .dateTime(dto.dateTime())
@@ -69,7 +71,7 @@ public class LessonService {
 
     @Transactional
     public LessonResponseDTO update(UUID id, LessonRequestDTO dto, UUID professorId) {
-        if (dto.endTime().isBefore(dto.dateTime()) || dto.endTime().isEqual(dto.dateTime())) {
+        if (!dto.endTime().isAfter(dto.dateTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End time must be after start time");
         }
 
@@ -84,7 +86,7 @@ public class LessonService {
         Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        boolean isCompletingNow = lesson.getStatus() != LessonStatus.COMPLETED && dto.status() == LessonStatus.COMPLETED;
+        processCreditAdjustment(student, lesson.getStatus(), dto.status());
 
         lesson.setDateTime(dto.dateTime());
         lesson.setEndTime(dto.endTime());
@@ -93,20 +95,34 @@ public class LessonService {
         lesson.setPrivateNotes(dto.privateNotes());
         lesson.setStudent(student);
 
-        if (isCompletingNow && student.getBillingType() == BillingType.CREDIT_PACKAGE) {
-            student.setCreditBalance(student.getCreditBalance() - 1);
-            studentRepository.save(student);
-        }
-
         return mapToDTO(lessonRepository.save(lesson));
     }
 
+    @Transactional
     public void delete(UUID id, UUID professorId) {
         Lesson lesson = lessonRepository.findById(id)
                 .filter(l -> l.getProfessor().getId().equals(professorId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        processCreditAdjustment(lesson.getStudent(), lesson.getStatus(), null);
         lessonRepository.delete(lesson);
+    }
+
+    private void processCreditAdjustment(Student student, LessonStatus oldStatus, LessonStatus newStatus) {
+        if (student.getBillingType() != BillingType.CREDIT_PACKAGE) {
+            return;
+        }
+
+        boolean oldConsumed = oldStatus != null && oldStatus != LessonStatus.CANCELED;
+        boolean newConsumed = newStatus != null && newStatus != LessonStatus.CANCELED;
+
+        if (!oldConsumed && newConsumed) {
+            student.setCreditBalance(student.getCreditBalance() - 1);
+            studentRepository.save(student);
+        } else if (oldConsumed && !newConsumed) {
+            student.setCreditBalance(student.getCreditBalance() + 1);
+            studentRepository.save(student);
+        }
     }
 
     private LessonResponseDTO mapToDTO(Lesson lesson) {
