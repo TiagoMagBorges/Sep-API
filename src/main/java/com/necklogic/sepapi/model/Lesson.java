@@ -30,6 +30,12 @@ public class Lesson {
     @Column(nullable = false)
     private LessonStatus status;
 
+    @Column(columnDefinition = "TEXT")
+    private String publicLog;
+
+    @Column(columnDefinition = "TEXT")
+    private String privateNotes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;

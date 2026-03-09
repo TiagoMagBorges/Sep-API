@@ -10,5 +10,7 @@ public record LessonRequestDTO(
         @NotNull UUID studentId,
         @NotNull LocalDateTime dateTime,
         @NotNull LocalDateTime endTime,
-        @NotNull LessonStatus status
+        @NotNull LessonStatus status,
+        String publicLog,
+        String privateNotes
 ) {}

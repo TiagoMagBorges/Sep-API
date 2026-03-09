@@ -12,5 +12,7 @@ public record LessonResponseDTO(
         String subject,
         LocalDateTime dateTime,
         LocalDateTime endTime,
-        LessonStatus status
+        LessonStatus status,
+        String publicLog,
+        String privateNotes
 ) {}
