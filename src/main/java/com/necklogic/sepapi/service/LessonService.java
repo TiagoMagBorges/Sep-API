@@ -5,11 +5,14 @@ import com.necklogic.sepapi.dto.LessonResponseDTO;
 import com.necklogic.sepapi.model.Lesson;
 import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.model.Student;
+import com.necklogic.sepapi.model.enums.BillingType;
+import com.necklogic.sepapi.model.enums.LessonStatus;
 import com.necklogic.sepapi.repository.LessonRepository;
 import com.necklogic.sepapi.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -38,13 +41,14 @@ public class LessonService {
         return mapToDTO(lesson);
     }
 
+    @Transactional
     public LessonResponseDTO create(LessonRequestDTO dto, Professor professor) {
         if (dto.endTime().isBefore(dto.dateTime()) || dto.endTime().isEqual(dto.dateTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End time must be after start time");
         }
 
         if (lessonRepository.existsOverlappingLesson(professor.getId(), dto.dateTime(), dto.endTime())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict: There is already a lesson in this time slot.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict.");
         }
 
         Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professor.getId())
@@ -54,6 +58,8 @@ public class LessonService {
                 .dateTime(dto.dateTime())
                 .endTime(dto.endTime())
                 .status(dto.status())
+                .publicLog(dto.publicLog())
+                .privateNotes(dto.privateNotes())
                 .student(student)
                 .professor(professor)
                 .build();
@@ -61,6 +67,7 @@ public class LessonService {
         return mapToDTO(lessonRepository.save(lesson));
     }
 
+    @Transactional
     public LessonResponseDTO update(UUID id, LessonRequestDTO dto, UUID professorId) {
         if (dto.endTime().isBefore(dto.dateTime()) || dto.endTime().isEqual(dto.dateTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End time must be after start time");
@@ -71,16 +78,25 @@ public class LessonService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (lessonRepository.existsOverlappingLessonExcludingId(professorId, id, dto.dateTime(), dto.endTime())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict: There is already a lesson in this time slot.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict.");
         }
 
         Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
+        boolean isCompletingNow = lesson.getStatus() != LessonStatus.COMPLETED && dto.status() == LessonStatus.COMPLETED;
+
         lesson.setDateTime(dto.dateTime());
         lesson.setEndTime(dto.endTime());
         lesson.setStatus(dto.status());
+        lesson.setPublicLog(dto.publicLog());
+        lesson.setPrivateNotes(dto.privateNotes());
         lesson.setStudent(student);
+
+        if (isCompletingNow && student.getBillingType() == BillingType.CREDIT_PACKAGE) {
+            student.setCreditBalance(student.getCreditBalance() - 1);
+            studentRepository.save(student);
+        }
 
         return mapToDTO(lessonRepository.save(lesson));
     }
@@ -101,7 +117,9 @@ public class LessonService {
                 lesson.getStudent().getSubject(),
                 lesson.getDateTime(),
                 lesson.getEndTime(),
-                lesson.getStatus()
+                lesson.getStatus(),
+                lesson.getPublicLog(),
+                lesson.getPrivateNotes()
         );
     }
 }
