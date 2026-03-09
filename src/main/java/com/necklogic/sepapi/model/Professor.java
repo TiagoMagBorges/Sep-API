@@ -32,6 +32,24 @@ public class Professor implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    private String phone;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean emailNotifications = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean lowCreditAlerts = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean missedClassAlerts = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean paymentAlerts = true;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));

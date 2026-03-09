@@ -23,4 +23,6 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID> {
     boolean existsOverlappingLessonExcludingId(@Param("professorId") UUID professorId, @Param("lessonId") UUID lessonId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     List<Lesson> findAllByStudentIdAndDateTimeBetweenOrderByDateTimeAsc(UUID studentId, LocalDateTime start, LocalDateTime end);
+
+    void deleteAllByProfessorId(UUID professorId);
 }

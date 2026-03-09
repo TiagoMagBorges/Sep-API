@@ -21,4 +21,5 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
 
     Optional<Student> findByIdAndProfessorId(UUID id, UUID professorId);
 
+    void deleteAllByProfessorId(UUID professorId);
 }

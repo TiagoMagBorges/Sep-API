@@ -20,4 +20,6 @@ public interface FinanceRepository extends JpaRepository<Finance, UUID> {
     List<Finance> findAllByProfessorIdAndDueDateBetweenOrderByDueDateDesc(UUID professorId, LocalDate start, LocalDate end);
 
     long countByProfessorIdAndStatusIn(UUID professorId, List<PaymentStatus> statuses);
+
+    void deleteAllByProfessorId(UUID professorId);
 }
