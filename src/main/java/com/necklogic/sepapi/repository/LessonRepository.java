@@ -21,4 +21,6 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID> {
 
     @Query("SELECT COUNT(l) > 0 FROM Lesson l WHERE l.professor.id = :professorId AND l.id != :lessonId AND l.status != 'CANCELED' AND l.dateTime < :endTime AND l.endTime > :startTime")
     boolean existsOverlappingLessonExcludingId(@Param("professorId") UUID professorId, @Param("lessonId") UUID lessonId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    List<Lesson> findAllByStudentIdAndDateTimeBetweenOrderByDateTimeAsc(UUID studentId, LocalDateTime start, LocalDateTime end);
 }

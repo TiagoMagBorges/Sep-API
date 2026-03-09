@@ -31,6 +31,9 @@ public class Finance {
     @Column(nullable = false)
     private PaymentStatus status;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
