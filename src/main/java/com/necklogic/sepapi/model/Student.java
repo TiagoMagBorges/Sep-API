@@ -39,4 +39,8 @@ public class Student {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_group_id")
+    private ClassGroup classGroup;
 }

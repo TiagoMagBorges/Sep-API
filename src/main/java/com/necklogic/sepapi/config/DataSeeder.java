@@ -4,6 +4,7 @@ import com.necklogic.sepapi.model.Student;
 import com.necklogic.sepapi.model.Lesson;
 import com.necklogic.sepapi.model.Finance;
 import com.necklogic.sepapi.model.Professor;
+import com.necklogic.sepapi.model.ClassGroup;
 import com.necklogic.sepapi.model.enums.LessonStatus;
 import com.necklogic.sepapi.model.enums.PaymentStatus;
 import com.necklogic.sepapi.model.enums.BillingType;
@@ -11,6 +12,7 @@ import com.necklogic.sepapi.repository.StudentRepository;
 import com.necklogic.sepapi.repository.LessonRepository;
 import com.necklogic.sepapi.repository.FinanceRepository;
 import com.necklogic.sepapi.repository.ProfessorRepository;
+import com.necklogic.sepapi.repository.ClassGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +31,7 @@ public class DataSeeder implements CommandLineRunner {
     private final StudentRepository studentRepository;
     private final LessonRepository lessonRepository;
     private final FinanceRepository financeRepository;
+    private final ClassGroupRepository classGroupRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -45,10 +48,22 @@ public class DataSeeder implements CommandLineRunner {
 
         professorRepository.save(professor);
 
-        Student student1 = Student.builder().name("Carlos Silva").subject("Teoria Musical").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).build();
-        Student student2 = Student.builder().name("Ana Beatriz").subject("Guitarra").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(4).professor(professor).build();
+        ClassGroup group1 = ClassGroup.builder()
+                .name("Turma de Teoria Musical - Turma A")
+                .professor(professor)
+                .build();
+
+        ClassGroup group2 = ClassGroup.builder()
+                .name("Prática de Conjunto")
+                .professor(professor)
+                .build();
+
+        classGroupRepository.saveAll(List.of(group1, group2));
+
+        Student student1 = Student.builder().name("Carlos Silva").subject("Teoria Musical").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).classGroup(group1).build();
+        Student student2 = Student.builder().name("Ana Beatriz").subject("Guitarra").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(4).professor(professor).classGroup(group2).build();
         Student student3 = Student.builder().name("Marcos Paulo").subject("Produção Musical").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(0).professor(professor).build();
-        Student student4 = Student.builder().name("Julia Santos").subject("Harmonia").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(2).professor(professor).build();
+        Student student4 = Student.builder().name("Julia Santos").subject("Harmonia").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(2).professor(professor).classGroup(group1).build();
 
         studentRepository.saveAll(List.of(student1, student2, student3, student4));
 

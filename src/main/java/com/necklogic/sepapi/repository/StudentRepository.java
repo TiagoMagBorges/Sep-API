@@ -1,11 +1,13 @@
 package com.necklogic.sepapi.repository;
 
+import com.necklogic.sepapi.model.ClassGroup;
 import com.necklogic.sepapi.model.Student;
 import com.necklogic.sepapi.model.enums.BillingType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,4 +24,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
     Optional<Student> findByIdAndProfessorId(UUID id, UUID professorId);
 
     void deleteAllByProfessorId(UUID professorId);
+
+    List<Student> findByClassGroup(ClassGroup classGroup);
 }
