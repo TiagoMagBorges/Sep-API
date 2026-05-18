@@ -2,11 +2,13 @@ package com.necklogic.sepapi.service;
 
 import com.necklogic.sepapi.dto.LessonRequestDTO;
 import com.necklogic.sepapi.dto.LessonResponseDTO;
+import com.necklogic.sepapi.model.ClassGroup;
 import com.necklogic.sepapi.model.Lesson;
 import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.model.Student;
 import com.necklogic.sepapi.model.enums.BillingType;
 import com.necklogic.sepapi.model.enums.LessonStatus;
+import com.necklogic.sepapi.repository.ClassGroupRepository;
 import com.necklogic.sepapi.repository.LessonRepository;
 import com.necklogic.sepapi.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final StudentRepository studentRepository;
+    private final ClassGroupRepository classGroupRepository;
 
     public List<LessonResponseDTO> listByInterval(UUID professorId, LocalDateTime start, LocalDateTime end) {
         return lessonRepository.findAllByProfessorIdAndDateTimeBetweenOrderByDateTimeAsc(professorId, start, end)
@@ -51,10 +54,20 @@ public class LessonService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict.");
         }
 
-        Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professor.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+        Student student = null;
+        ClassGroup classGroup = null;
 
-        processCreditAdjustment(student, null, dto.status());
+        if (dto.studentId() != null) {
+            student = studentRepository.findByIdAndProfessorId(dto.studentId(), professor.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+            processCreditAdjustment(student, null, dto.status());
+        } else if (dto.classGroupId() != null) {
+            classGroup = classGroupRepository.findByIdAndProfessorId(dto.classGroupId(), professor.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Class group not found"));
+            processGroupCreditAdjustment(classGroup, null, dto.status());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lesson must have a student or class group");
+        }
 
         Lesson lesson = Lesson.builder()
                 .dateTime(dto.dateTime())
@@ -63,6 +76,7 @@ public class LessonService {
                 .publicLog(dto.publicLog())
                 .privateNotes(dto.privateNotes())
                 .student(student)
+                .classGroup(classGroup)
                 .professor(professor)
                 .build();
 
@@ -83,17 +97,17 @@ public class LessonService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Schedule conflict.");
         }
 
-        Student student = studentRepository.findByIdAndProfessorId(dto.studentId(), professorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
-
-        processCreditAdjustment(student, lesson.getStatus(), dto.status());
+        if (lesson.getStudent() != null) {
+            processCreditAdjustment(lesson.getStudent(), lesson.getStatus(), dto.status());
+        } else if (lesson.getClassGroup() != null) {
+            processGroupCreditAdjustment(lesson.getClassGroup(), lesson.getStatus(), dto.status());
+        }
 
         lesson.setDateTime(dto.dateTime());
         lesson.setEndTime(dto.endTime());
         lesson.setStatus(dto.status());
         lesson.setPublicLog(dto.publicLog());
         lesson.setPrivateNotes(dto.privateNotes());
-        lesson.setStudent(student);
 
         return mapToDTO(lessonRepository.save(lesson));
     }
@@ -104,8 +118,19 @@ public class LessonService {
                 .filter(l -> l.getProfessor().getId().equals(professorId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        processCreditAdjustment(lesson.getStudent(), lesson.getStatus(), null);
+        if (lesson.getStudent() != null) {
+            processCreditAdjustment(lesson.getStudent(), lesson.getStatus(), null);
+        } else if (lesson.getClassGroup() != null) {
+            processGroupCreditAdjustment(lesson.getClassGroup(), lesson.getStatus(), null);
+        }
+
         lessonRepository.delete(lesson);
+    }
+
+    private void processGroupCreditAdjustment(ClassGroup classGroup, LessonStatus oldStatus, LessonStatus newStatus) {
+        for (Student student : classGroup.getStudents()) {
+            processCreditAdjustment(student, oldStatus, newStatus);
+        }
     }
 
     private void processCreditAdjustment(Student student, LessonStatus oldStatus, LessonStatus newStatus) {
@@ -128,9 +153,11 @@ public class LessonService {
     private LessonResponseDTO mapToDTO(Lesson lesson) {
         return new LessonResponseDTO(
                 lesson.getId(),
-                lesson.getStudent().getId(),
-                lesson.getStudent().getName(),
-                lesson.getStudent().getSubject(),
+                lesson.getStudent() != null ? lesson.getStudent().getId() : null,
+                lesson.getStudent() != null ? lesson.getStudent().getName() : null,
+                lesson.getClassGroup() != null ? lesson.getClassGroup().getId() : null,
+                lesson.getClassGroup() != null ? lesson.getClassGroup().getName() : null,
+                lesson.getStudent() != null ? lesson.getStudent().getSubject() : "Turma",
                 lesson.getDateTime(),
                 lesson.getEndTime(),
                 lesson.getStatus(),

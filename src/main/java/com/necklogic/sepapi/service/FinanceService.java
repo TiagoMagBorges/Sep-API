@@ -59,8 +59,10 @@ public class FinanceService {
     private FinanceResponseDTO mapToDTO(Finance finance) {
         return new FinanceResponseDTO(
                 finance.getId(),
-                finance.getStudent().getId(),
-                finance.getStudent().getName(),
+                finance.getStudent() != null ? finance.getStudent().getId() : null,
+                finance.getStudent() != null ? finance.getStudent().getName() : null,
+                finance.getClassGroup() != null ? finance.getClassGroup().getId() : null,
+                finance.getClassGroup() != null ? finance.getClassGroup().getName() : null,
                 finance.getAmount(),
                 finance.getDueDate(),
                 finance.getStatus(),
