@@ -42,8 +42,8 @@ public class DataSeeder implements CommandLineRunner {
 
         Professor professor = Professor.builder()
                 .name("Tiago Borges")
-                .email("tiagomagborges@gmail.com")
-                .password(passwordEncoder.encode("senha_segura_123"))
+                .email("admin@admin.com")
+                .password(passwordEncoder.encode("123456"))
                 .build();
 
         professorRepository.save(professor);
@@ -58,14 +58,21 @@ public class DataSeeder implements CommandLineRunner {
                 .professor(professor)
                 .build();
 
-        classGroupRepository.saveAll(List.of(group1, group2));
+        ClassGroup group3 = ClassGroup.builder()
+                .name("Masterclass de Improvisação")
+                .professor(professor)
+                .build();
+
+        classGroupRepository.saveAll(List.of(group1, group2, group3));
 
         Student student1 = Student.builder().name("Carlos Silva").subject("Teoria Musical").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).classGroup(group1).build();
         Student student2 = Student.builder().name("Ana Beatriz").subject("Guitarra").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(4).professor(professor).classGroup(group2).build();
         Student student3 = Student.builder().name("Marcos Paulo").subject("Produção Musical").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(0).professor(professor).build();
         Student student4 = Student.builder().name("Julia Santos").subject("Harmonia").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(2).professor(professor).classGroup(group1).build();
+        Student student5 = Student.builder().name("Pedro Henrique").subject("Baixo").active(true).billingType(BillingType.MONTHLY).creditBalance(0).professor(professor).classGroup(group2).build();
+        Student student6 = Student.builder().name("Nick Nery").subject("Guitarra").active(true).billingType(BillingType.CREDIT_PACKAGE).creditBalance(10).professor(professor).classGroup(group3).build();
 
-        studentRepository.saveAll(List.of(student1, student2, student3, student4));
+        studentRepository.saveAll(List.of(student1, student2, student3, student4, student5, student6));
 
         LocalDateTime today = LocalDateTime.now();
 
@@ -81,7 +88,7 @@ public class DataSeeder implements CommandLineRunner {
                 .dateTime(today.withHour(16).withMinute(0).withSecond(0))
                 .endTime(today.withHour(17).withMinute(0).withSecond(0))
                 .status(LessonStatus.SCHEDULED)
-                .student(student2)
+                .classGroup(group2)
                 .professor(professor)
                 .build();
 
@@ -109,11 +116,20 @@ public class DataSeeder implements CommandLineRunner {
                 .endTime(today.minusDays(7).withHour(19).withMinute(0).withSecond(0))
                 .status(LessonStatus.COMPLETED)
                 .publicLog("Introdução aos modos gregos e improvisação inicial.")
-                .student(student1)
+                .classGroup(group1)
                 .professor(professor)
                 .build();
 
-        lessonRepository.saveAll(List.of(lesson1, lesson2, lesson3, lesson4, lesson5));
+        Lesson lesson6 = Lesson.builder()
+                .dateTime(today.minusDays(15).withHour(19).withMinute(0).withSecond(0))
+                .endTime(today.minusDays(15).withHour(20).withMinute(0).withSecond(0))
+                .status(LessonStatus.COMPLETED)
+                .publicLog("Dinâmica de grupo e percepção rítmica.")
+                .classGroup(group2)
+                .professor(professor)
+                .build();
+
+        lessonRepository.saveAll(List.of(lesson1, lesson2, lesson3, lesson4, lesson5, lesson6));
 
         LocalDate dueToday = LocalDate.now();
 
@@ -153,6 +169,42 @@ public class DataSeeder implements CommandLineRunner {
                 .professor(professor)
                 .build();
 
-        financeRepository.saveAll(List.of(finance1, finance2, finance3, finance4));
+        Finance financeGroup1 = Finance.builder()
+                .amount(new BigDecimal("600.00"))
+                .dueDate(dueToday.minusMonths(1).plusDays(10))
+                .status(PaymentStatus.PAID)
+                .description("Fechamento Turma A - Mês Anterior")
+                .classGroup(group1)
+                .professor(professor)
+                .build();
+
+        Finance financeGroup2 = Finance.builder()
+                .amount(new BigDecimal("600.00"))
+                .dueDate(dueToday.plusDays(10))
+                .status(PaymentStatus.PENDING)
+                .description("Fechamento Turma A - Mês Atual")
+                .classGroup(group1)
+                .professor(professor)
+                .build();
+
+        Finance financeGroup3 = Finance.builder()
+                .amount(new BigDecimal("450.00"))
+                .dueDate(dueToday.minusDays(5))
+                .status(PaymentStatus.OVERDUE)
+                .description("Taxa de Estúdio - Prática de Conjunto")
+                .classGroup(group2)
+                .professor(professor)
+                .build();
+
+        Finance financeGroup4 = Finance.builder()
+                .amount(new BigDecimal("800.00"))
+                .dueDate(dueToday.minusMonths(2))
+                .status(PaymentStatus.PAID)
+                .description("Inscrição Masterclass")
+                .classGroup(group3)
+                .professor(professor)
+                .build();
+
+        financeRepository.saveAll(List.of(finance1, finance2, finance3, finance4, financeGroup1, financeGroup2, financeGroup3, financeGroup4));
     }
 }

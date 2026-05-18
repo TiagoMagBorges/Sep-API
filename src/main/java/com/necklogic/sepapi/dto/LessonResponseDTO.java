@@ -9,10 +9,13 @@ public record LessonResponseDTO(
         UUID id,
         UUID studentId,
         String studentName,
+        UUID classGroupId,
+        String classGroupName,
         String subject,
         LocalDateTime dateTime,
         LocalDateTime endTime,
         LessonStatus status,
         String publicLog,
         String privateNotes
-) {}
+) {
+}
