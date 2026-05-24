@@ -24,5 +24,7 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID> {
 
     List<Lesson> findAllByStudentIdAndDateTimeBetweenOrderByDateTimeAsc(UUID studentId, LocalDateTime start, LocalDateTime end);
 
+    List<Lesson> findAllByClassGroupIdAndDateTimeBetweenOrderByDateTimeAsc(UUID classGroupId, LocalDateTime start, LocalDateTime end);
+
     void deleteAllByProfessorId(UUID professorId);
 }

@@ -1,5 +1,7 @@
 package com.necklogic.sepapi.controller;
 
+import com.necklogic.sepapi.dto.ClassGroupAnalyticsDTO;
+import com.necklogic.sepapi.dto.FinanceAnalyticsDTO;
 import com.necklogic.sepapi.dto.ProfessorAnalyticsDTO;
 import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.service.AnalyticsService;
@@ -32,4 +34,29 @@ public class AnalyticsController {
                 end.atTime(23, 59, 59)
         ));
     }
+
+    @GetMapping("/finance")
+    public ResponseEntity<FinanceAnalyticsDTO> getFinanceAnalytics(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @AuthenticationPrincipal Professor professor){
+
+        return ResponseEntity.ok(analyticsService.getFinanceAnalytics(professor.getId(), start, end));
+    }
+
+    @GetMapping("/class-group/{classGroupId}")
+    public ResponseEntity<ClassGroupAnalyticsDTO> getClassGroupAnalytics(
+            @PathVariable UUID classGroupId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @AuthenticationPrincipal Professor professor){
+
+        return ResponseEntity.ok(analyticsService.getClassGroupAnalytics(
+                classGroupId,
+                professor.getId(),
+                start.atStartOfDay(),
+                end.atTime(23, 59, 59)
+        ));
+    }
+
 }
