@@ -42,4 +42,21 @@ public class ReportController {
                 .headers(headers)
                 .body(pdfBytes);
     }
+
+    @GetMapping("/finance")
+    public ResponseEntity<byte[]> getFinanceReport(
+            @RequestParam UUID professorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+
+        byte[] pdfBytes = reportService.generateFinanceReport(professorId, start, end);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "relatorio_financeiro_" + professorId + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
 }
