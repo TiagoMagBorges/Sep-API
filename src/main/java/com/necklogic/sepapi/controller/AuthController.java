@@ -32,7 +32,7 @@ public class AuthController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken(((Professor) auth.getPrincipal()).getId());
+        var token = tokenService.generateToken((Professor) auth.getPrincipal());
 
         return ResponseEntity.ok(new AuthResponseDTO(token));
     }

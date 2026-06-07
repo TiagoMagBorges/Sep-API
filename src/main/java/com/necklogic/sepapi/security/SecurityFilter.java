@@ -1,27 +1,28 @@
 package com.necklogic.sepapi.security;
 
-import com.necklogic.sepapi.repository.ProfessorRepository;
+import com.necklogic.sepapi.model.Professor;
+import com.necklogic.sepapi.model.enums.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final ProfessorRepository professorRepository;
 
-    public SecurityFilter(TokenService tokenService, ProfessorRepository professorRepository) {
+    public SecurityFilter(TokenService tokenService) {
         this.tokenService = tokenService;
-        this.professorRepository = professorRepository;
     }
 
     @Override
@@ -31,13 +32,16 @@ public class SecurityFilter extends OncePerRequestFilter {
             var subject = tokenService.validateToken(token);
 
             if (subject != null && !subject.isEmpty()) {
-                var userOptional = professorRepository.findById(UUID.fromString(subject));
+                var roleString = tokenService.getRoleFromToken(token);
+                var authority = new SimpleGrantedAuthority("ROLE_" + roleString);
 
-                if (userOptional.isPresent()) {
-                    var user = userOptional.get();
-                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+                var authenticatedUser = Professor.builder()
+                    .id(UUID.fromString(subject))
+                    .role(UserRole.valueOf(roleString))
+                    .build();
+
+                var authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, "", List.of(authority));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
         filterChain.doFilter(request, response);
