@@ -33,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (subject != null && !subject.isEmpty()) {
                 var userOptional = professorRepository.findById(UUID.fromString(subject));
 
-                if (userOptional.isPresent()) {
+                if (userOptional.isPresent() && userOptional.get().isEnabled()) {
                     var user = userOptional.get();
                     var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);

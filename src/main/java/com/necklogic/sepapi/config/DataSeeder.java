@@ -2,6 +2,7 @@ package com.necklogic.sepapi.config;
 
 import com.necklogic.sepapi.model.Aluno;
 import com.necklogic.sepapi.model.Aula;
+import com.necklogic.sepapi.model.ClassGroup;
 import com.necklogic.sepapi.model.Financa;
 import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.model.enums.StatusAula;
@@ -9,6 +10,7 @@ import com.necklogic.sepapi.model.enums.StatusPagamento;
 import com.necklogic.sepapi.model.enums.TipoCobranca;
 import com.necklogic.sepapi.repository.AlunoRepository;
 import com.necklogic.sepapi.repository.AulaRepository;
+import com.necklogic.sepapi.repository.ClassGroupRepository;
 import com.necklogic.sepapi.repository.FinancaRepository;
 import com.necklogic.sepapi.repository.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.List;
 public class DataSeeder implements CommandLineRunner {
 
     private final ProfessorRepository professorRepository;
+    private final ClassGroupRepository classGroupRepository;
     private final AlunoRepository alunoRepository;
     private final AulaRepository aulaRepository;
     private final FinancaRepository financaRepository;
@@ -45,18 +48,25 @@ public class DataSeeder implements CommandLineRunner {
 
         professorRepository.save(professor);
 
-        Aluno aluno1 = Aluno.builder().nome("Carlos Silva").materia("Matemática").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).build();
-        Aluno aluno2 = Aluno.builder().nome("Ana Beatriz").materia("Inglês").ativo(true).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(4).professor(professor).build();
-        Aluno aluno3 = Aluno.builder().nome("Marcos Paulo").materia("Física").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).build();
-        Aluno aluno4 = Aluno.builder().nome("Julia Santos").materia("Química").ativo(false).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(2).professor(professor).build();
+        ClassGroup classGroup = ClassGroup.builder()
+                .nome("Turma de Reforço")
+                .professor(professor)
+                .build();
+
+        classGroupRepository.save(classGroup);
+
+        Aluno aluno1 = Aluno.builder().nome("Carlos Silva").materia("Matemática").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).classGroup(classGroup).build();
+        Aluno aluno2 = Aluno.builder().nome("Ana Beatriz").materia("Inglês").ativo(true).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(4).professor(professor).classGroup(classGroup).build();
+        Aluno aluno3 = Aluno.builder().nome("Marcos Paulo").materia("Física").ativo(true).tipoCobranca(TipoCobranca.MENSALIDADE).saldoCreditos(0).professor(professor).classGroup(classGroup).build();
+        Aluno aluno4 = Aluno.builder().nome("Julia Santos").materia("Química").ativo(false).tipoCobranca(TipoCobranca.PACOTE_CREDITOS).saldoCreditos(2).professor(professor).classGroup(classGroup).build();
 
         alunoRepository.saveAll(List.of(aluno1, aluno2, aluno3, aluno4));
 
         LocalDateTime hoje = LocalDateTime.now();
 
-        Aula aula1 = Aula.builder().dataHora(hoje.plusDays(1)).status(StatusAula.AGENDADA).aluno(aluno1).professor(professor).build();
-        Aula aula2 = Aula.builder().dataHora(hoje.plusDays(2)).status(StatusAula.AGENDADA).aluno(aluno2).professor(professor).build();
-        Aula aula3 = Aula.builder().dataHora(hoje.minusDays(1)).status(StatusAula.REALIZADA).aluno(aluno3).professor(professor).build();
+        Aula aula1 = Aula.builder().dataHora(hoje.plusDays(1)).status(StatusAula.AGENDADA).aluno(aluno1).classGroup(classGroup).professor(professor).logPublicoAtividades("Aula agendada para revisão de conteúdo.").build();
+        Aula aula2 = Aula.builder().dataHora(hoje.plusDays(2)).status(StatusAula.AGENDADA).aluno(aluno2).classGroup(classGroup).professor(professor).logPublicoAtividades("Atividade prevista: pratica orientada.").build();
+        Aula aula3 = Aula.builder().dataHora(hoje.minusDays(1)).status(StatusAula.REALIZADA).aluno(aluno3).classGroup(classGroup).professor(professor).logPublicoAtividades("Aula realizada com resolução de exercícios.").build();
 
         aulaRepository.saveAll(List.of(aula1, aula2, aula3));
 

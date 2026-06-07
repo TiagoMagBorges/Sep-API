@@ -26,7 +26,7 @@ public class DashboardService {
     private final FinancaRepository financaRepository;
 
     public DashboardSummaryDTO getSummary(UUID professorId) {
-        long totalAlunos = alunoRepository.countByProfessorIdAndAtivoTrue(professorId);
+        long totalAlunos = alunoRepository.countByProfessorIdAndAtivoTrueAndArquivadoEmIsNull(professorId);
 
         LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);

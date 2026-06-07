@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +32,13 @@ public class Professor implements UserDetails {
 
     @Column(nullable = false)
     private String senha;
+
+    @Builder.Default
+    private boolean ativo = true;
+
+    private LocalDateTime arquivadoEm;
+
+    private LocalDateTime exclusaoFisicaEm;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,6 +72,6 @@ public class Professor implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return ativo;
     }
 }

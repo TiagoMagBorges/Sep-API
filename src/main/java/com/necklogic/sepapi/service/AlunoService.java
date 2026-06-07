@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -28,14 +29,12 @@ public class AlunoService {
     private final PacoteCreditosStrategy pacoteCreditosStrategy;
 
     public Page<AlunoResponseDTO> listar(UUID professorId, Pageable pageable){
-
-
-        return alunoRepository.findAllByProfessorId(professorId, pageable)
+        return alunoRepository.findAllByProfessorIdAndArquivadoEmIsNull(professorId, pageable)
                 .map(this::mapToDTO);
     }
 
     public AlunoResponseDTO buscarPorId(UUID id, UUID professorId){
-        Aluno aluno = alunoRepository.findByIdAndProfessorId(id, professorId)
+        Aluno aluno = alunoRepository.findByIdAndProfessorIdAndArquivadoEmIsNull(id, professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         return mapToDTO(aluno);
@@ -57,7 +56,7 @@ public class AlunoService {
     }
 
     public AlunoResponseDTO atualizar(UUID id, AlunoRequestDTO dto, UUID professorId){
-        Aluno aluno = alunoRepository.findByIdAndProfessorId(id, professorId)
+        Aluno aluno = alunoRepository.findByIdAndProfessorIdAndArquivadoEmIsNull(id, professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         aluno.setNome(dto.nome());
@@ -72,16 +71,20 @@ public class AlunoService {
     }
 
     public void deletar(UUID id, UUID professorId){
-        Aluno aluno = alunoRepository.findByIdAndProfessorId(id, professorId)
+        Aluno aluno = alunoRepository.findByIdAndProfessorIdAndArquivadoEmIsNull(id, professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        alunoRepository.delete(aluno);
+        LocalDateTime now = LocalDateTime.now();
+        aluno.setAtivo(false);
+        aluno.setArquivadoEm(now);
+        aluno.setExclusaoFisicaEm(now.plusYears(2));
+        alunoRepository.save(aluno);
     }
 
     public AlunoMetricasDTO obterMetricas(UUID professorId) {
-        long ativos = alunoRepository.countByProfessorIdAndAtivoTrue(professorId);
-        long creditosBaixos = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosLessThanEqual(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
-        long emDia = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosGreaterThan(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
+        long ativos = alunoRepository.countByProfessorIdAndAtivoTrueAndArquivadoEmIsNull(professorId);
+        long creditosBaixos = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosLessThanEqualAndArquivadoEmIsNull(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
+        long emDia = alunoRepository.countByProfessorIdAndTipoCobrancaAndSaldoCreditosGreaterThanAndArquivadoEmIsNull(professorId, TipoCobranca.PACOTE_CREDITOS, 3);
 
         return new AlunoMetricasDTO(ativos, creditosBaixos, emDia);
     }

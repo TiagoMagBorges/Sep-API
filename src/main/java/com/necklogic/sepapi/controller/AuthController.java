@@ -9,13 +9,19 @@ import com.necklogic.sepapi.security.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -53,5 +59,19 @@ public class AuthController {
 
         this.professorRepository.save(newProfessor);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentAccount(@AuthenticationPrincipal Professor professor) {
+        Professor managedProfessor = professorRepository.findById(professor.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        managedProfessor.setAtivo(false);
+        managedProfessor.setArquivadoEm(now);
+        managedProfessor.setExclusaoFisicaEm(now.plusYears(2));
+        professorRepository.save(managedProfessor);
+
+        return ResponseEntity.noContent().build();
     }
 }

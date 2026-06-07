@@ -6,21 +6,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
 
-    long countByProfessorIdAndAtivoTrue(UUID professorId);
+    long countByProfessorIdAndAtivoTrueAndArquivadoEmIsNull(UUID professorId);
 
-    long countByProfessorIdAndTipoCobrancaAndSaldoCreditosLessThanEqual(UUID id, TipoCobranca tipo, Integer saldo);
+    long countByProfessorIdAndTipoCobrancaAndSaldoCreditosLessThanEqualAndArquivadoEmIsNull(UUID id, TipoCobranca tipo, Integer saldo);
 
-    long countByProfessorIdAndTipoCobrancaAndSaldoCreditosGreaterThan(UUID id, TipoCobranca tipo, Integer saldo);
+    long countByProfessorIdAndTipoCobrancaAndSaldoCreditosGreaterThanAndArquivadoEmIsNull(UUID id, TipoCobranca tipo, Integer saldo);
 
-    Page<Aluno> findAllByProfessorId(UUID professorId, Pageable pageable);
+    Page<Aluno> findAllByProfessorIdAndArquivadoEmIsNull(UUID professorId, Pageable pageable);
 
-    Optional<Aluno> findByIdAndProfessorId(UUID id, UUID professorId);
+    Optional<Aluno> findByIdAndProfessorIdAndArquivadoEmIsNull(UUID id, UUID professorId);
 
+    List<Aluno> findAllByClassGroupIdAndProfessorIdAndArquivadoEmIsNullOrderByNomeAsc(UUID classGroupId, UUID professorId);
 
 
 }

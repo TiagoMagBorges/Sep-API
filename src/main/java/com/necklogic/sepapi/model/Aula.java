@@ -32,6 +32,13 @@ public class Aula {
     private Aluno aluno;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_group_id")
+    private ClassGroup classGroup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    @Column(length = 1000)
+    private String logPublicoAtividades;
 }

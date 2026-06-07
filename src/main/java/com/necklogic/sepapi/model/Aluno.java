@@ -4,6 +4,7 @@ import com.necklogic.sepapi.model.enums.TipoCobranca;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -39,4 +40,12 @@ public class Aluno {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_group_id")
+    private ClassGroup classGroup;
+
+    private LocalDateTime arquivadoEm;
+
+    private LocalDateTime exclusaoFisicaEm;
 }
