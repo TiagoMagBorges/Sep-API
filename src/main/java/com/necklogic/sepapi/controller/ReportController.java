@@ -26,7 +26,6 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    // Endpoint para o PDF do Aluno
     @GetMapping("/student/{studentId}")
     public ResponseEntity<byte[]> getStudentReport(
             @PathVariable UUID studentId,
@@ -50,7 +49,6 @@ public class ReportController {
                 .body(pdfBytes);
     }
 
-    // Endpoint para o PDF da Turma
     @GetMapping("/class-group/{classGroupId}")
     public ResponseEntity<byte[]> getClassGroupReport(
             @PathVariable UUID classGroupId,
@@ -74,7 +72,6 @@ public class ReportController {
                 .body(pdfBytes);
     }
 
-    // Endpoint para o PDF Financeiro
     @GetMapping("/finance")
     public ResponseEntity<byte[]> getFinanceReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,

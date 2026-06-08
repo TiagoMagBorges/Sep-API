@@ -1,5 +1,6 @@
 package com.necklogic.sepapi.model;
 
+import com.necklogic.sepapi.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,6 +35,11 @@ public class Professor implements UserDetails {
 
     private String phone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.PROFESSOR;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean emailNotifications = true;
@@ -52,7 +58,7 @@ public class Professor implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     @Override
