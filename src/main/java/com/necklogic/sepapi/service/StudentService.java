@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
@@ -39,6 +40,7 @@ public class StudentService {
         return mapToDTO(student);
     }
 
+    @Transactional
     public StudentResponseDTO create(StudentRequestDTO dto, Professor professor){
         Student student = Student.builder()
                 .name(dto.name())
@@ -54,6 +56,7 @@ public class StudentService {
         return mapToDTO(studentRepository.save(student));
     }
 
+    @Transactional
     public StudentResponseDTO update(UUID id, StudentRequestDTO dto, UUID professorId){
         Student student = studentRepository.findByIdAndProfessorId(id, professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -69,6 +72,7 @@ public class StudentService {
         return mapToDTO(studentRepository.save(student));
     }
 
+    @Transactional
     public void delete(UUID id, UUID professorId){
         Student student = studentRepository.findByIdAndProfessorId(id, professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
