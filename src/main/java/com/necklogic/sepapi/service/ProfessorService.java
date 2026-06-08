@@ -4,8 +4,6 @@ import com.necklogic.sepapi.dto.ChangePasswordRequestDTO;
 import com.necklogic.sepapi.dto.ProfessorProfileDTO;
 import com.necklogic.sepapi.dto.UpdateProfileRequestDTO;
 import com.necklogic.sepapi.model.Professor;
-import com.necklogic.sepapi.repository.FinanceRepository;
-import com.necklogic.sepapi.repository.LessonRepository;
 import com.necklogic.sepapi.repository.ProfessorRepository;
 import com.necklogic.sepapi.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +19,6 @@ public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final StudentRepository studentRepository;
-    private final LessonRepository lessonRepository;
-    private final FinanceRepository financeRepository;
     private final PasswordEncoder passwordEncoder;
 
     public ProfessorProfileDTO getProfile(Professor professor) {
@@ -53,7 +49,7 @@ public class ProfessorService {
     @Transactional
     public void changePassword(Professor professor, ChangePasswordRequestDTO dto) {
         if (!passwordEncoder.matches(dto.currentPassword(), professor.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Senha atual incorreta.");
         }
         professor.setPassword(passwordEncoder.encode(dto.newPassword()));
         professorRepository.save(professor);
@@ -61,8 +57,10 @@ public class ProfessorService {
 
     @Transactional
     public void deleteAccount(Professor professor) {
-        financeRepository.deleteAllByProfessorId(professor.getId());
-        lessonRepository.deleteAllByProfessorId(professor.getId());
+        String emailToRelease = professor.getEmail();
+        professor.setEmail("deleted_" + System.currentTimeMillis() + "_" + emailToRelease);
+        professorRepository.save(professor);
+
         studentRepository.deleteAllByProfessorId(professor.getId());
         professorRepository.delete(professor);
     }
