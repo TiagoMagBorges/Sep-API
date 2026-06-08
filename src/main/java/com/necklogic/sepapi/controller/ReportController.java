@@ -1,17 +1,23 @@
 package com.necklogic.sepapi.controller;
 
-import com.necklogic.sepapi.model.Professor;
-import com.necklogic.sepapi.service.ReportService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.util.UUID;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.UUID;
+import com.necklogic.sepapi.model.Professor;
+import com.necklogic.sepapi.service.ReportService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -43,17 +49,44 @@ public class ReportController {
                 .body(pdfBytes);
     }
 
-    @GetMapping("/finance")
-    public ResponseEntity<byte[]> getFinanceReport(
-            @RequestParam UUID professorId,
+    @GetMapping("/class-group/{classGroupId}")
+    public ResponseEntity<byte[]> getClassGroupReport(
+            @PathVariable UUID classGroupId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @AuthenticationPrincipal Professor professor) {
 
-        byte[] pdfBytes = reportService.generateFinanceReport(professorId, start, end);
+        byte[] pdfBytes = reportService.generateClassGroupReport(
+                classGroupId,
+                professor.getId(),
+                start.atStartOfDay(),
+                end.atTime(23, 59, 59)
+        );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "relatorio_financeiro_" + professorId + ".pdf");
+        headers.setContentDispositionFormData("attachment", "relatorio_turma_" + classGroupId + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/finance")
+    public ResponseEntity<byte[]> getFinanceReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @AuthenticationPrincipal Professor professor) {
+
+        byte[] pdfBytes = reportService.generateFinanceReport(
+                professor.getId(),
+                start,
+                end
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "relatorio_financeiro.pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)

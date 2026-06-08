@@ -1,27 +1,29 @@
 package com.necklogic.sepapi.config;
 
-import com.necklogic.sepapi.model.Student;
-import com.necklogic.sepapi.model.Lesson;
-import com.necklogic.sepapi.model.Finance;
-import com.necklogic.sepapi.model.Professor;
-import com.necklogic.sepapi.model.ClassGroup;
-import com.necklogic.sepapi.model.enums.LessonStatus;
-import com.necklogic.sepapi.model.enums.PaymentStatus;
-import com.necklogic.sepapi.model.enums.BillingType;
-import com.necklogic.sepapi.repository.StudentRepository;
-import com.necklogic.sepapi.repository.LessonRepository;
-import com.necklogic.sepapi.repository.FinanceRepository;
-import com.necklogic.sepapi.repository.ProfessorRepository;
-import com.necklogic.sepapi.repository.ClassGroupRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.necklogic.sepapi.model.ClassGroup;
+import com.necklogic.sepapi.model.Finance;
+import com.necklogic.sepapi.model.Lesson;
+import com.necklogic.sepapi.model.Professor;
+import com.necklogic.sepapi.model.Student;
+import com.necklogic.sepapi.model.enums.BillingType;
+import com.necklogic.sepapi.model.enums.LessonStatus;
+import com.necklogic.sepapi.model.enums.PaymentStatus;
+import com.necklogic.sepapi.repository.ClassGroupRepository;
+import com.necklogic.sepapi.repository.FinanceRepository;
+import com.necklogic.sepapi.repository.LessonRepository;
+import com.necklogic.sepapi.repository.ProfessorRepository;
+import com.necklogic.sepapi.repository.StudentRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
