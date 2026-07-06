@@ -3,6 +3,7 @@ package com.necklogic.sepapi.model;
 import com.necklogic.sepapi.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,6 +61,10 @@ public class Professor implements UserDetails {
     @Builder.Default
     @Column(nullable = false)
     private boolean paymentAlerts = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

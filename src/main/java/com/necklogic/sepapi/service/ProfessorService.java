@@ -1,5 +1,6 @@
 package com.necklogic.sepapi.service;
 
+import com.necklogic.sepapi.dto.AdminUserDTO;
 import com.necklogic.sepapi.dto.ChangePasswordRequestDTO;
 import com.necklogic.sepapi.dto.ProfessorProfileDTO;
 import com.necklogic.sepapi.dto.UpdateProfileRequestDTO;
@@ -7,11 +8,15 @@ import com.necklogic.sepapi.model.Professor;
 import com.necklogic.sepapi.repository.ProfessorRepository;
 import com.necklogic.sepapi.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -63,5 +68,22 @@ public class ProfessorService {
 
         studentRepository.deleteAllByProfessorId(professor.getId());
         professorRepository.delete(professor);
+    }
+
+    public Page<AdminUserDTO> getAllProfessors(Pageable pageable) {
+        return professorRepository.findAll(pageable)
+                .map(professor -> new AdminUserDTO(
+                        professor.getId(),
+                        professor.getName(),
+                        professor.getEmail(),
+                        professor.getCreatedAt()
+                ));
+    }
+
+    @Transactional
+    public void deleteProfessorAsAdmin(UUID id) {
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+        deleteAccount(professor);
     }
 }
