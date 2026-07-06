@@ -17,6 +17,7 @@ import com.necklogic.sepapi.model.Student;
 import com.necklogic.sepapi.model.enums.BillingType;
 import com.necklogic.sepapi.model.enums.LessonStatus;
 import com.necklogic.sepapi.model.enums.PaymentStatus;
+import com.necklogic.sepapi.model.enums.UserRole;
 import com.necklogic.sepapi.repository.ClassGroupRepository;
 import com.necklogic.sepapi.repository.FinanceRepository;
 import com.necklogic.sepapi.repository.LessonRepository;
@@ -42,13 +43,21 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        Professor professor = Professor.builder()
-                .name("Tiago Borges")
-                .email("admin@admin.com")
+        Professor admin = Professor.builder()
+                .name("Administrador SEP")
+                .email("admin@sep.com")
                 .password(passwordEncoder.encode("123456"))
+                .role(UserRole.ADMIN)
                 .build();
 
-        professorRepository.save(professor);
+        Professor professor = Professor.builder()
+                .name("Tiago Magela Borges")
+                .email("tiago@sep.com")
+                .password(passwordEncoder.encode("123456"))
+                .role(UserRole.PROFESSOR)
+                .build();
+
+        professorRepository.saveAll(List.of(admin, professor));
 
         ClassGroup group1 = ClassGroup.builder()
                 .name("Turma de Teoria Musical - Turma A")

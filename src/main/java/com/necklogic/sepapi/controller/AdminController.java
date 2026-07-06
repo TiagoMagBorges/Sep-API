@@ -18,14 +18,12 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<Page<AdminUserResponseDTO>> listUsers(Pageable pageable) {
-
         return ResponseEntity.ok(adminService.listUsers(pageable));
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         adminService.deleteUser(id);
-
         return ResponseEntity.noContent().build();
     }
 }
